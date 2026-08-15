@@ -1,13 +1,11 @@
---!strict
+ --!strict
 --!native
 --!optimize 2
-
 -- Since I'm still learning how stuff works in @native mode I MIGHT mess some core things.
 
 -- Modules
 local EZSignal = require("../dependencies/EZSignal")
 local EZFastLex = require("./EZFastLex")
-
 
 -- Functions
 --[=[

@@ -7,6 +7,9 @@ local LRT_Detector = require("../dependencies/LRT-Detector")
 local logWarn: (...any) -> ()
 local _LuauScript: { Name: string }
 
+-- Variables
+local DO_OUTPUT = true
+
 -- Funtions
 --[[
     Developing this is gonna be HELL bro anything but work on the parser :sob:
@@ -22,7 +25,7 @@ local function FormatTextForLuauCLI(...)
 	local function indent(depth)
 		return string.rep("    ", depth)
 	end
-	local function write(value: any, depth)
+	local function write(value: any, depth: number)
 		local t = typeof(value)
 		if t == "table" then
 			if visited[value] then
@@ -68,7 +71,7 @@ end
     Returns "FileNameNotImplemented" if not available.
 ]]
 local function GetScriptFileName()
-    local pluau_runtime = LRT_Detector.getRuntime()
+	local pluau_runtime = LRT_Detector.getRuntime()
 	local fileName, lineNumber = debug.info(3, "sl")
 
 	if pluau_runtime == "rblx" then
@@ -80,44 +83,39 @@ local function GetScriptFileName()
 	end
 end
 
-local containers = {} :: { [string]: {} }
 local Debugger = {}
 
-if LRT_Detector.getRuntime() == "lune" or LRT_Detector.getRuntime() == "rblx"  then
+if LRT_Detector.getRuntime() == "lune" or LRT_Detector.getRuntime() == "rblx" then
 	logWarn = getfenv().warn
 	_LuauScript = getfenv().script
 end
 
--- creates a new debugger class in DOD and basically allow for erm? yeh alert and what not and option to track that stuff
-Debugger.new = function(name: string)
-	if containers[name] then
-		warn(`[{script.Name}] - name: {name} already exists.`)
-	end
-	containers[name] = {}
-end
-
 Debugger.Warn = function(...)
-	local FileName = GetScriptFileName()
-	if LRT_Detector.getRuntime() == "rblx" then
-		logWarn(...)
+	if DO_OUTPUT then
+		local FileName = GetScriptFileName()
+		if LRT_Detector.getRuntime() == "rblx" then
+			logWarn(...)
+		end
+		-- Detects if the message has a Table to prettify in Luau
+		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" then
+			FormatTextForLuauCLI(`[!][{FileName}] -`, ...)
+			return
+		end
+		print(`[!][{FileName}] -`, ...)
 	end
-	-- Detects if the message has a Table to prettify in Luau
-	if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" then
-		FormatTextForLuauCLI(`[!][{FileName}] -`, ...)
-		return
-	end
-	print(`[!][{FileName}] -`, ...)
 end
 
 Debugger.Out = function(...)
-	local FileName = GetScriptFileName()
+	if DO_OUTPUT then
+		local FileName = GetScriptFileName()
 
-	-- Detects if the message has a Table to prettify in Luau
-	if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" then
-		FormatTextForLuauCLI(`[{FileName}] -`, ...)
-		return
+		-- Detects if the message has a Table to prettify in Luau
+		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" then
+			FormatTextForLuauCLI(`[{FileName}] -`, ...)
+			return
+		end
+		print(`[{FileName}] -`, ...)
 	end
-	print(`[{FileName}] -`, ...)
 end
 
 return Debugger

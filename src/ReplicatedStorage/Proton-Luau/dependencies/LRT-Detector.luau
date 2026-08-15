@@ -12,7 +12,7 @@ local isInit = false
 local queryRuntime = function()
 	-- Check for Roblox Runtime
 	local isRoblox = pcall(function(...)
-		return game:GetService("Workspace")
+		return game
 	end)
 	if isRoblox then
 		runtime = "rblx"

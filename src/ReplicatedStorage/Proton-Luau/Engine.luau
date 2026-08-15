@@ -4,11 +4,11 @@
 print("[ProtonLuau] - Started")
 
 -- Modules
-local LRT_Detector = require("../Proton-Luau/dependencies/LRT-Detector")
-local EZSignal = require("../Proton-Luau/dependencies/EZSignal")
-local parser = require("../Proton-Luau/core/parser")
-local lexer = require("../Proton-Luau/core/lexer")
-local Debugger = require("../Proton-Luau/core/Debugger")
+local LRT_Detector = require("./dependencies/LRT-Detector")
+local EZSignal = require("./dependencies/EZSignal")
+local parser = require("./core/parser")
+local lexer = require("./core/lexer")
+local Debugger = require("./core/Debugger")
 
 -- Variables
 local runtime = LRT_Detector.getRuntime()
