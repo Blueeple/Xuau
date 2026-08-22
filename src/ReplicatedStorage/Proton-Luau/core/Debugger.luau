@@ -8,7 +8,9 @@ local logWarn: (...any) -> ()
 local _LuauScript: { Name: string }
 
 -- Variables
-local DO_OUTPUT = true
+local Settings = {
+    DO_OUTPUT = true
+}
 
 -- Funtions
 --[[
@@ -90,8 +92,22 @@ if LRT_Detector.getRuntime() == "lune" or LRT_Detector.getRuntime() == "rblx" th
 	_LuauScript = getfenv().script
 end
 
+--[[
+    Applies an override to the Debugger.
+]]
+Debugger.ApplyOverides = function(Overide: string, Value: any)
+    if Settings[Overide] ~= nil then
+        Settings[Overide] = Value
+    else
+        print(`[Debugger.luau] - Invalid Overide: {Overide}`)
+    end
+end
+
+--[[
+    Outputs a warning message to the console.
+]]
 Debugger.Warn = function(...)
-	if DO_OUTPUT then
+	if Settings.DO_OUTPUT then
 		local FileName = GetScriptFileName()
 		if LRT_Detector.getRuntime() == "rblx" then
 			logWarn(...)
@@ -105,8 +121,11 @@ Debugger.Warn = function(...)
 	end
 end
 
+--[[
+    Outputs a message to the console.
+]]
 Debugger.Out = function(...)
-	if DO_OUTPUT then
+	if Settings.DO_OUTPUT then
 		local FileName = GetScriptFileName()
 
 		-- Detects if the message has a Table to prettify in Luau

@@ -1,6 +1,6 @@
 # **Xuau**
 
-A Proton style Luau live transpiler that allows Roblox developers to write code from almost any language that can be transpiled to Luau bytecode to be executed in Luau via Roblox, Lune or Lute runtimes, using their native Runtimes or Emulated via Fiu.
+A Proton style Luau live transpiler that allows Roblox developers to write code from almost any language that can be transpiled to Luau bytecode to be executed in Luau via Roblox, Lune or Lute runtimes, using their native Runtimes or Emulated with Fiu or whatever Luau emulator that ends up being used or forked.
 
 ## Additional Notes:
 - This was originally built to execute C++ code in Luau for my nefarious works in porting 4J Studio's McLCE Mob code to roblox as a fun side project.

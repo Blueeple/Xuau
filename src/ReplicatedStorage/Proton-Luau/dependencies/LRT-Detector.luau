@@ -12,7 +12,7 @@ local isInit = false
 local queryRuntime = function()
 	-- Check for Roblox Runtime
 	local isRoblox = pcall(function(...)
-		return game
+		return getfenv("workspace")
 	end)
 	if isRoblox then
 		runtime = "rblx"
@@ -66,5 +66,36 @@ LRT_D.getRuntime = function(): string
 	end
 	return runtime
 end
+
+--[[
+    Returns true if the runtime is Lune.
+]]
+LRT_D.isLune = function(): boolean
+	if not isInit then
+		queryRuntime()
+	end
+	return runtime == "lune"
+end
+
+--[[
+    Returns true if the runtime is Lute.
+]]
+LRT_D.isLute = function(): boolean
+	if not isInit then
+		queryRuntime()
+	end
+	return runtime == "lute"
+end
+
+--[[
+    Returns true if the runtime is Roblox.
+]]
+LRT_D.isRoblox = function(): boolean
+	if not isInit then
+		queryRuntime()
+	end
+	return runtime == "rblx"
+end
+
 
 return LRT_D
