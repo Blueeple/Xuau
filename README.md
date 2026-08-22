@@ -1,14 +1,19 @@
-# **Proton Luau**
+# **Xuau**
 
-A Proton style Luau live transpiler that allows Roblox developers to write code from almost any language that can be transpiled to Luau bytecode to be executed in Luau via Roblox, Lune or Lute runtimes.
+A Proton style Luau live transpiler that allows Roblox developers to write code from almost any language that can be transpiled to Luau bytecode to be executed in Luau via Roblox, Lune or Lute runtimes, using their native Runtimes or Emulated via Fiu.
 
 ## Additional Notes:
 - This was originally built to execute C++ code in Luau for my nefarious works in porting 4J Studio's McLCE Mob code to roblox as a fun side project.
 - Then Later adapted for VEZ Motorsports scripting language VEZ Script.
 - I do NOT suggest using this for production use, as of now, still **WIP**.
 - Also this is somewhat of a wanna Be AOT / JIT transpiler.
-- Nothing in this Readme is final 😂🤞.
+- Nothing in this Readme is final.
 - No there is ZERO support for any language / Syntax at the moment.
+
+## Important Notices:
+- Due to the way lune and lute might handle Linux and MacOS Xuau might not work on these system's for a while.
+- Currently Xuau's focus is to normalize Lute and Lune before focusing on other operating systems.
+- If you are on Linux or MacOS the only way you can use Xuau is via Roblox Studio / Roblox game client.
 
 ## Supported Package Managers:
 * [Rokit](https://github.com/rojo-rbx/rokit) - Roblox Only
@@ -21,14 +26,14 @@ A Proton style Luau live transpiler that allows Roblox developers to write code 
 * [Lune](https://lune-org.github.io/docs/) - Native support
 
 ## Installation (Not final)
-* Rokit - `Rokit add Proton-Luau`
+* Rokit - `Rokit add Xuau`
 * Roblox CMD - `game:GetService("InsertService"):LoadAsset(NoAssetIdYet).Parent = workspace`
-* LMP - `Not sure how this one goes tbh`
+* LMP - `Not supported yet`
 * Roblox Creator Store [Model](https://create.roblox.com/landing)
 
 ## Setup (Not final)
 * A supported Runtime. ([Lune](https://lune-org.github.io/docs/) / [Roblox](https://create.roblox.com/landing) is recommended)
-* [LPM](https://luaupm.com) / [Wally](https://wally.run) for installing Packages relating to Proton-Luau's Language syntax maps, Which Proton-Luau relies HEAVILY on for caching.
+* [LPM](https://luaupm.com) / [Wally](https://wally.run) for installing Packages relating to Xuau's Language syntax maps, Which Xuau relies HEAVILY on for caching.
 
 ## Objectively Worse Runtime:
 * Luau CLI - Requires manually converting .Json to .Luau before execution, and doesn't support file system operations natively.
