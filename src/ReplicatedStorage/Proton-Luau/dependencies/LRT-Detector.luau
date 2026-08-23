@@ -12,7 +12,7 @@ local isInit = false
 local queryRuntime = function()
 	-- Check for Roblox Runtime
 	local isRoblox = pcall(function(...)
-		return getfenv("workspace")
+		print(getfenv().script.Name)
 	end)
 	if isRoblox then
 		runtime = "rblx"

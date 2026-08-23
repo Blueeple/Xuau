@@ -1,55 +1,39 @@
---[=[
-	Was supposed to be type solver but lowkey got carried away a bit?
-]=]
 --!strict
 -- optimize 2
 
 -- Modules
---local KeywordFlags = require("../langInfo/keywordFlags") :: { [string]: string }
---local Keywords = require("../langInfo/keywords")
 local Debugger = require("../core/Debugger")
 
+-- Storage
+local files = {} :: { [string]: { any } }
+
 -- Namespaces
-local void = {}
-local func_ = {}
+local parser = {}
+local _functions = {}
 
--- Funcionts
-func_.GetKeywordHandleFlag = @native function(keyword: string)
-	return 0 --KeywordFlags[keyword]
-end
-
-func_.FindKeywordInLine = @native function(line: string, detectFlags: boolean)
-    
-end
-
-func_.GetLines = @native function(code: string)
-	local lines = {} :: { string }
-	for line in code:gmatch("[^\r\n]+") do
-		table.insert(lines, line)
+-- Local functions
+--[[]]
+local generateRandomFileId = function(): string
+	local fileId = "#"
+	local chars = { "X", "Y", "Z", "Q", "R", "S", "T", "U", "V", "W", "M", "N", "F", "E", "W", "A", "0", "1", "3", "5", "7" }
+	for i = 1, 23 do
+		if i % 4 == 0 then
+			fileId = fileId .. "-"
+		else
+			fileId = fileId .. chars[math.random(1, #chars)]
+		end
 	end
-	return lines
+	return fileId
 end
 
-func_.GenerateOperationsForLine = @native function(line: string)
-
+-- Parser
+parser.newFile = function()
+	local fileId = generateRandomFileId()
+	files[fileId] = {}
+	Debugger.Out("Created file: " .. fileId)
+	return fileId
 end
 
-func_.parseLexerResult = @native function(result: { string })
-    Debugger.Out(result)
-end
+parser.parseLexerResult = function(lexerResult: {}) end
 
--- Public functions
-void.GetLines = func_.GetLines
-void.GenerateOperationsFL = func_.GenerateOperationsForLine
-void.parseLexerResult = func_.parseLexerResult
-
---[=[
-    Creates a new 'local' file in the parser.
-]=]
-void.newFile = function()
-	local file = {} -- Temp stuff for now until I figure out how this file thing is gonna work with sanboxes
-	return file
-end
-
-return void
--- Allow the other parser options and pragmas
+return parser

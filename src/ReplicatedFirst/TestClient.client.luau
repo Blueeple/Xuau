@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local _Bin = ReplicatedFirst:WaitForChild("Bin")
 
 -- Packages
-local Transulator = require(ReplicatedStorage:WaitForChild("VezScript").Engine)
+local Transulator = require(ReplicatedStorage:WaitForChild("Proton-Luau").Engine)
 
 -- CodeToTest
 local _Test = require("@game/ReplicatedFirst/Bin/TestCode")

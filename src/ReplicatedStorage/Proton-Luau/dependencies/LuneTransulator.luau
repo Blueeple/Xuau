@@ -64,7 +64,7 @@ local nativeLuneLibraryLink = {
 			return content
 		end,
 	},
-	serde = require("./LuneModules/serde")
+	serde = require("./LuneModules/serde"),
 }
 
 -- [ Runtime ]
@@ -135,10 +135,11 @@ end
 local doLibraryCall = function(libName: string, funcName: string, ...): any
 	local lib = nativeLibs[libName]
 	if not lib then
-		Debugger.Warn(`Unable to find Library {libName}`)
+		Debugger.Warn(`Unable to find Library: '{libName}'`)
+		Debugger.Warn("XuauVirtualOS Does not exist yet.")
 		return
 	end
-	local target = lib[funcName]
+	local target = lib[funcName] :: (...any) -> any
 	if not target then
 		Debugger.Warn(`Unable to find Function | Property {funcName} in Library {libName}`)
 		return
@@ -156,13 +157,15 @@ end
 local luneLib_CallFunc = function(libName: string, funcName: string, ...)
 	-- Variables
 	local args = { ... }
-	local lib = nativeLibs[libName]
+	local lib = nativeLibs[libName] :: { [string]: (...any) -> any }
 	if LRT_Detector.isLune() then
 		return lib[funcName](unpack(args))
 	elseif LRT_Detector.isLute() then
-		return nativeLuneLibraryLink[libName][funcName](lib, unpack(args))
+		local func = nativeLuneLibraryLink[libName][funcName] :: (...any) -> any
+		return func(lib, unpack(args))
 	else
 		Debugger.Warn("Unsupported runtime for now!")
+		return
 	end
 end
 
@@ -190,7 +193,7 @@ end
 
 --[[
     Probes the native libraries between Lute and lune and see who shared functions per lib.
-    - **DEBUGGING ONLY**
+    - **DEBUGGING ONLY & Written using ChatGPT (No way I'm writting allat with no sleep)**
 ]]
 LRT_Lmapper.probeNativeLibs = function()
 	if LRT_Detector.getRuntime() == "lute" then
@@ -288,7 +291,7 @@ LRT_Lmapper.init = function()
 
 	-- Libraries
 	System.cwd = doLibraryCall("process", "cwd")
-	System.os = string.lower(doLibraryCall("process", "os") :: string) :: string
+	System.os = string.lower(doLibraryCall("process", "os") :: string or "XuauVirualOS") :: string
 
 	-- Normalization for Lute and Lune data
 	normalizeSystemData()
@@ -321,15 +324,14 @@ end
 
 --[[
     Gets the file system function.
+
+    - Unstable as of now.
 ]]
 LRT_Lmapper.getSerde = function()
 	return {
 		-- Directory
-		c  = function(format: string, encode: string): { string }
-			return luneLib_CallFunc("serde", "decode", encode, format) :: any
-		end,
-		writeDir = function(path: string)
-			return luneLib_CallFunc("fs", "writeDir", path)
+		decode = function(format: string, encoded: string): { string }
+			return luneLib_CallFunc("serde", "decode", format, encoded) :: any
 		end,
 	}
 end

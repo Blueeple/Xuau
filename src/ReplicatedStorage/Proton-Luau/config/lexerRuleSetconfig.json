@@ -1,3 +1,4 @@
 {
-  "int": 1
+  "lexer-ignore": [ " " ],
+  "lexer-lineEnd": [ ";", "{", "}", "\n"],
 }
