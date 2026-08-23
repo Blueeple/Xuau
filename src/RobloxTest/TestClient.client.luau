@@ -7,10 +7,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local _Bin = ReplicatedFirst:WaitForChild("Bin")
 
 -- Packages
-local Transulator = require(ReplicatedStorage:WaitForChild("Proton-Luau").Engine)
+local Transulator = require(ReplicatedStorage:WaitForChild("Xuau").Engine)
 
 -- CodeToTest
-local _Test = require("@game/ReplicatedFirst/Bin/TestCode")
+local _Test = require("./Bin/TestCode")
 local exampleLine = { "int x = 5;" }
 
 Transulator.CompileToLuau(exampleLine)
