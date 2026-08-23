@@ -11,13 +11,13 @@ local LuneTransulator = require("./LuneTransulator")
 
 if not LRT_Detector.isRoblox() then
 	local fs = LuneTransulator.getFileSystem()
-	local serde = LuneTransulator.getSerde()
+	local _serde = LuneTransulator.getSerde()
 	local XuauConfigJson: any
 
 	return {
 		load = function()
 			if not XuauConfigJson then
-				XuauConfigJson = fs.readFile("./src/ReplicatedStorage/Proton-Luau/config/XuauConfig.json")
+				XuauConfigJson = fs.readFile("./src/Xuau/config/XuauConfig.json") -- Fix this yo use cwd
 			end
 		end,
 		getConfig = function(Name: string): any

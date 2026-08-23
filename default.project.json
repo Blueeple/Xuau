@@ -1,31 +1,15 @@
 {
-  "name": "ProtonLuau",
+  "name": "Xuau",
   "tree": {
     "$className": "DataModel",
 
     "ReplicatedFirst": {
-      "$path": "src/ReplicatedFirst"
-
+      "$path": "src/RobloxTest"
     },
 
     "ReplicatedStorage": {
-      "$path": "src/ReplicatedStorage",
-      "Packages": {
-        "$className": "Folder",
-        "$path": "Packages"
-      }
-    },
-
-    "ServerScriptService": {
-      "$path": "src/ServerScriptService"
-    },
-
-    "StarterPlayer": {
-      "StarterCharacterScripts": {
-        "$path": "src/CharacterScripts"
-      },
-      "StarterPlayerScripts": {
-        "$path": "src/PlayerScripts"
+      "Xuau": {
+        "$path": "src/Xuau"
       }
     }
   }

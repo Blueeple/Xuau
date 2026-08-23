@@ -1,6 +1,7 @@
-local Proton_Luau = require("./src/ReplicatedStorage/Proton-Luau/Engine")
-local _CodeToTest = require("./src/ReplicatedFirst/Bin/TestCode")
+local Xuau = require("./src/Xuau/Engine")
+local _CodeToTest = require("./src/RobloxTest/Bin/TestCode")
 
 local exampleLine = { "int x = 5;" }
 
-Proton_Luau.CompileToLuau(exampleLine)
+--Xuau.Init()
+Xuau.CompileToLuau(exampleLine)
