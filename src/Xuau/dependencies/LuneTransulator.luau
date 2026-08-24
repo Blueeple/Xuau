@@ -9,7 +9,7 @@ local LRT_Detector = require("./LRT-Detector")
 -- Variables
 -- [ Libaries ]
 local libraries = {
-	-- Shared / overlapping
+	-- Shared
 	"fs",
 	"net",
 	"process",
@@ -36,6 +36,7 @@ local libraries = {
 	"vm",
 }
 local nativeLibs = {}
+local nativeExternalNamespaces = {} :: { [string]: { [string]: any } }
 local nativeLuneLibraryLink = {
 	fs = {
 		-- Lune & Lute
@@ -63,12 +64,34 @@ local nativeLuneLibraryLink = {
 			curLib["close"](file)
 			return content
 		end,
+		isDir = function(curLib: { [string]: (...any) -> any }, path: string)
+			return curLib["type"](path) == "dir"
+		end,
+		isFile = function(curLib: { [string]: (...any) -> any }, path: string)
+			return curLib["type"](path) == "file"
+		end,
 	},
-	serde = require("./LuneModules/serde"),
+	serde = {
+		decode = function(_, format: string, data: string)
+			local std_json = nativeExternalNamespaces["std"]["json"]
+			return std_json.deserialize(data)
+		end,
+		encode = function(_, format: string, data: { string }): string
+			local std_json = nativeExternalNamespaces["std"]["json"]
+			return std_json.serialize(data, false)
+		end,
+	},
 }
 
 -- [ Runtime ]
 local runtime = LRT_Detector.getRuntime()
+local externalNamespaces = {
+    lute = {
+        std = {
+            "json",
+        }
+    }
+}
 
 -- [ Internal ]
 local isInit = false
@@ -107,8 +130,25 @@ local GenerateRuntimeLibray = function(libName: string)
 			libFunctions[funcName] = func
 		end
 	end
-
 	nativeLibs[libName] = libFunctions
+end
+
+--[[
+    Generates the runtime library for the external namespace libraries.
+
+    Returns the library table.
+]]
+local GenerateRuntimeExternalLibray = function()
+    if not externalNamespaces[runtime] then
+        return
+    end
+    for namespace, libs in externalNamespaces[runtime] do
+        Debugger.Warn(`Loading External namespace: {namespace}`)
+        nativeExternalNamespaces[namespace] = {}
+        for _, libName: string in libs do
+            nativeExternalNamespaces[namespace][libName] = require(`@{namespace}/{libName}`) :: any
+        end
+    end
 end
 
 --[[
@@ -170,24 +210,25 @@ local luneLib_CallFunc = function(libName: string, funcName: string, ...)
 end
 
 -- Module
-local LRT_Lmapper = {}
+local LuneTransulator = {}
 
 --[[
     Scrapes the native libraries for the current runtime.
 ]]
-LRT_Lmapper.loadRuntimeLibraries = function()
+LuneTransulator.loadRuntimeLibraries = function()
 	if next(nativeLibs) then
 		return
 	end
 	for _, LibName in libraries do
 		GenerateRuntimeLibray(LibName)
 	end
+	GenerateRuntimeExternalLibray()
 end
 
 --[[
     Returns the native libraries for the current runtime.
 ]]
-LRT_Lmapper.getNativeLibs = function()
+LuneTransulator.getNativeLibs = function()
 	return nativeLibs
 end
 
@@ -195,7 +236,7 @@ end
     Probes the native libraries between Lute and lune and see who shared functions per lib.
     - **DEBUGGING ONLY & Written using ChatGPT (No way I'm writting allat with no sleep)**
 ]]
-LRT_Lmapper.probeNativeLibs = function()
+LuneTransulator.probeNativeLibs = function()
 	if LRT_Detector.getRuntime() == "lute" then
 		local availableLibsForLune = {}
 		Debugger.ApplyOverides("DO_OUTPUT", true)
@@ -281,12 +322,12 @@ end
 --[[
     Initializes the LRT Library Map.
 ]]
-LRT_Lmapper.init = function()
+LuneTransulator.init = function()
 	if isInit then
 		return
 	end
 	if not next(nativeLibs) then
-		LRT_Lmapper.loadRuntimeLibraries()
+		LuneTransulator.loadRuntimeLibraries()
 	end
 
 	-- Libraries
@@ -303,7 +344,7 @@ end
 --[[
     Gets the file system function.
 ]]
-LRT_Lmapper.getFileSystem = function()
+LuneTransulator.getFileSystem = function()
 	return {
 		-- Directory
 		readDir = function(path: string): { string }
@@ -319,21 +360,43 @@ LRT_Lmapper.getFileSystem = function()
 		readFile = function(path: string): string
 			return luneLib_CallFunc("fs", "readFile", path) :: any
 		end,
+		-- isDir / isFile
+		isDir = function(path: string): boolean
+			return luneLib_CallFunc("fs", "isDir", path) :: any
+		end,
+		isFile = function(path: string): boolean
+			return luneLib_CallFunc("fs", "isFile", path) :: any
+		end,
 	}
 end
 
 --[[
     Gets the file system function.
 
-    - Unstable as of now.
+    - Unstable as of now, Due to the fact that Lute is still in development.
+    - Should work as intended in Lune.
 ]]
-LRT_Lmapper.getSerde = function()
+LuneTransulator.getSerde = function()
 	return {
 		-- Directory
 		decode = function(format: string, encoded: string): { string }
 			return luneLib_CallFunc("serde", "decode", format, encoded) :: any
 		end,
+		encode = function(format: string, data: { string }): string
+			return luneLib_CallFunc("serde", "encode", format, data) :: any
+		end,
 	}
 end
 
-return LRT_Lmapper
+--[[
+    Gets the Process system functions
+]]
+LuneTransulator.getProcess = function()
+	return {
+		cwd = function(): string
+			return System.cwd
+		end,
+	}
+end
+
+return LuneTransulator

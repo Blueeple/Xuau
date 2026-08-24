@@ -218,7 +218,7 @@ BufferEngine.destroy = function(bufferId: number) -- fix ts later
 	if BufferEngine._Buffers[bufferId] then
 		BufferEngine._Buffers[bufferId] = nil
 	else
-		warn(`[{script.Name}] - Cannot find buffer with Id: {bufferId}!`)
+		--warn(`[{script.Name}] - Cannot find buffer with Id: {bufferId}!`)
 	end
 end
 
@@ -249,7 +249,7 @@ BufferEngine.Write = function(bufferId: number, operation: string, value: number
 	if Writes[operation] then
 		object.W += Writes[operation](b, W, value) :: number
 	else
-		warn(`[{script.Name}] - Operation: {operation} not found!`)
+		--warn(`[{script.Name}] - Operation: {operation} not found!`)
 	end
 end
 
@@ -263,7 +263,7 @@ BufferEngine.Read = function(bufferId: number, operation: string)
 		object.R += rOffset
 		return v
 	else
-		warn(`[{script.Name}] - Operation: {operation} not found!`)
+		--warn(`[{script.Name}] - Operation: {operation} not found!`)
 	end
 	return 0
 end
