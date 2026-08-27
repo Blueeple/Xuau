@@ -58,7 +58,6 @@ XuauEngine.CompileToLuau = function(code: { string })
         XuauEngine.Init()
         isInitForLute = true
     end
-    
     Debugger.Out("Compiling to Luau...")
 	lexer.ReadCode(code[1])
 end
