@@ -65,20 +65,34 @@ local nativeLuneLibraryLink = {
 			return content
 		end,
 		isDir = function(curLib: { [string]: (...any) -> any }, path: string)
-			return curLib["type"](path) == "dir"
+			return curLib["exists"](path) == "dir"
 		end,
 		isFile = function(curLib: { [string]: (...any) -> any }, path: string)
-			return curLib["type"](path) == "file"
+			return curLib["exists"](path) == "file"
 		end,
 	},
 	serde = {
-		decode = function(_, format: string, data: string)
-			local std_json = nativeExternalNamespaces["std"]["json"]
-			return std_json.deserialize(data)
+		decode = function(_, format: string, data: string): string | { [string]: any }
+			if format:lower() == "json" then
+				local std_json = nativeExternalNamespaces["std"]["json"]
+				return std_json.deserialize(data, false)
+			elseif format:lower() == "toml" then
+				local batteries_toml = nativeExternalNamespaces["batteries"]["toml"]
+				return batteries_toml.deserialize(data, false)
+			else
+				return ""
+			end
 		end,
-		encode = function(_, format: string, data: { string }): string
-			local std_json = nativeExternalNamespaces["std"]["json"]
-			return std_json.serialize(data, false)
+		encode = function(_, format: string, data: { string }): string | { [string]: any }
+			if format:lower() == "json" then
+				local std_json = nativeExternalNamespaces["std"]["json"]
+				return std_json.serialize(data, false)
+			elseif format:lower() == "toml" then
+				local batteries_toml = nativeExternalNamespaces["batteries"]["toml"]
+				return batteries_toml.serialize(data, false)
+			else
+				return ""
+			end
 		end,
 	},
 }
@@ -86,11 +100,14 @@ local nativeLuneLibraryLink = {
 -- [ Runtime ]
 local runtime = LRT_Detector.getRuntime()
 local externalNamespaces = {
-    lute = {
-        std = {
-            "json",
-        }
-    }
+	lute = {
+		std = {
+			"json",
+		},
+		batteries = {
+			"toml",
+		},
+	},
 }
 
 -- [ Internal ]
@@ -112,17 +129,14 @@ local System = {
 ]]
 local GenerateRuntimeLibray = function(libName: string)
 	local libPath = `@{runtime}/{libName:lower()}`
-	local isRequired, lib = pcall(function(...)
+	local isRequired, lib = pcall(function()
 		return require(libPath :: string) :: { [string]: (...any) -> any }
 	end)
 	if not isRequired or (MERGE_SYS_PROCESS_IN_LUTE and libName == "system") then
 		return
 	end
 
-	local libFunctions = {}
-	for funcName, func: (...any) -> () in lib do
-		libFunctions[funcName] = func
-	end
+	local libFunctions = table.clone(lib)
 	if MERGE_SYS_PROCESS_IN_LUTE and libName == "process" and LRT_Detector.getRuntime() == "lute" then
 		local luteSys_Path = "@lute/system"
 		local sysTarget = require(luteSys_Path :: string) :: { [string]: (...any) -> any }
@@ -139,16 +153,16 @@ end
     Returns the library table.
 ]]
 local GenerateRuntimeExternalLibray = function()
-    if not externalNamespaces[runtime] then
-        return
-    end
-    for namespace, libs in externalNamespaces[runtime] do
-        Debugger.Warn(`Loading External namespace: {namespace}`)
-        nativeExternalNamespaces[namespace] = {}
-        for _, libName: string in libs do
-            nativeExternalNamespaces[namespace][libName] = require(`@{namespace}/{libName}`) :: any
-        end
-    end
+	if not externalNamespaces[runtime] then
+		return
+	end
+	for namespace, libs in externalNamespaces[runtime] do
+		Debugger.Warn(`Loading External namespace: {namespace}`)
+		nativeExternalNamespaces[namespace] = {}
+		for _, libName: string in libs do
+			nativeExternalNamespaces[namespace][libName] = require(`@{namespace}/{libName}`) :: any
+		end
+	end
 end
 
 --[[
@@ -372,16 +386,27 @@ end
 
 --[[
     Gets the file system function.
-
-    - Unstable as of now, Due to the fact that Lute is still in development.
-    - Should work as intended in Lune.
 ]]
 LuneTransulator.getSerde = function()
 	return {
-		-- Directory
+		--
+		--[[
+		    Decodes a Json string into a Luau table.
+
+            - Due to compatibility issues, only Json decode formatting works on Lute.
+            - Toml only works when you configure "batteries properly"
+            - Yaml, and Xml are not supported on Lute as of now, Until I create a workaround, or Lute gets updated.
+		]]
 		decode = function(format: string, encoded: string): { string }
 			return luneLib_CallFunc("serde", "decode", format, encoded) :: any
 		end,
+		--[[
+		    Encodes Luau tables to Json strings.
+
+            - Due to compatibility issues, only Json encode formatting works on Lute.
+            - Toml only works when you configure "batteries properly"
+            - Yaml, and Xml are not supported on Lute as of now, Until I create a workaround, or Lute gets updated.
+		]]
 		encode = function(format: string, data: { string }): string
 			return luneLib_CallFunc("serde", "encode", format, data) :: any
 		end,

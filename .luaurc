@@ -6,6 +6,7 @@
         "lint": "@std/commands/lint/types",
         "lute": "~/.lute/typedefs/1.0.1/lute",
         "game": "./src",
-        "std": "~/.lute/typedefs/1.0.1/std"
+        "std": "~/.lute/typedefs/1.0.1/std",
+        "batteries": "./luteBatteries"
     }
 }
