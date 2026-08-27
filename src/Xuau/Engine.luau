@@ -1,7 +1,7 @@
 --[=[
     Scripted by @Blueeple on @Github
 ]=]
-print("[Xuau] - Started.")
+print("[Xuau] - Starting")
 
 -- Critical Modules
 local LRT_Detector = require("./dependencies/LRT-Detector")
@@ -21,7 +21,6 @@ local parser = require("./core/parser")
 -- Variables
 local runtime = LRT_Detector.getRuntime()
 local isInitForLute = false
-local XuauConfig = {}
 
 print(`[Xuau] - {runtime} | Applying Natives`)
 if LRT_Detector.isLune() then
@@ -46,10 +45,11 @@ end)
 local XuauEngine = {}
 
 XuauEngine.Init = function()
-    if LRT_Detector.isLute and next(XuauConfig) == nil then
-        XuauConfig = ConfigFetcter.load()
+    if LRT_Detector.isLute then
+        ConfigFetcter.load()
     end
     --ConfigFetcter.getConfig("")
+    print("[!][Xuau] - Setup completed.")
 end
 
 XuauEngine.CompileToLuau = function(code: { string })

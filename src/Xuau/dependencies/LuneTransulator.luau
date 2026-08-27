@@ -65,10 +65,10 @@ local nativeLuneLibraryLink = {
 			return content
 		end,
 		isDir = function(curLib: { [string]: (...any) -> any }, path: string)
-			return curLib["exists"](path) == "dir"
+			return curLib["exists"](path)
 		end,
 		isFile = function(curLib: { [string]: (...any) -> any }, path: string)
-			return curLib["exists"](path) == "file"
+			return curLib["exists"](path)
 		end,
 	},
 	serde = {
