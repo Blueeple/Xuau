@@ -113,7 +113,7 @@ Debugger.Warn = function(...)
 			logWarn(...)
 		end
 		-- Detects if the message has a Table to prettify in Luau
-		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" then
+		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" and typeof(...) == "table" then
 			FormatTextForLuauCLI(`[!][{FileName}] -`, ...)
 			return
 		end
@@ -129,7 +129,7 @@ Debugger.Out = function(...)
 		local FileName = GetScriptFileName()
 
 		-- Detects if the message has a Table to prettify in Luau
-		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" then
+		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" and typeof(...) == "table" then
 			FormatTextForLuauCLI(`[{FileName}] -`, ...)
 			return
 		end

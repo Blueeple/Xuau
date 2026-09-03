@@ -31,10 +31,10 @@ local queryRuntime = function()
 	-- Detect Lune/Lute runtime when both are present.
 	if isLune and isLute then
 		print("[!][LRT-Detector] - Detected Lune and Lute runtimes, Detecting Runtime...")
-		local isRunningLune = pcall(function(...)
-			return getfenv().warn -- Only Lune / Roblox runtime has a warn global function
+		local isRunningLune, warnfunc = pcall(function(...)
+			return getfenv()["warn"] -- Only Lune / Roblox runtime has a warn global function
 		end)
-		if not isRunningLune then
+		if not isRunningLune and warnfunc then
 			runtime = "lute"
 			print("[!][LRT-Detector] - Lute Runtime detected.")
 		end
@@ -42,7 +42,6 @@ local queryRuntime = function()
 		runtime = "lune"
 		print("[!][LRT-Detector] - Lune Runtime detected.")
 	end
-
 	isInit = true
 end
 

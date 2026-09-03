@@ -23,10 +23,6 @@ local runtime = LRT_Detector.getRuntime()
 local isInitForLute = false
 
 print(`[Xuau] - {runtime} | Applying Natives`)
-if LRT_Detector.isLune() then
-    ConfigFetcter.load()
-end
-
 -- Signals
 EZSignal.new("Xuau")
 EZSignal.new("Xuau-Parser")
@@ -41,20 +37,37 @@ EZSignal.BindTo("Xuau-Parser", function(charTable: { string })
 	--parser.parseLexerResult(charTable)
 end)
 
+ConfigFetcter.onLoad(function()
+    -- Configs
+    local ForceDisableDebugOutput = ConfigFetcter.getConfig_Json("ForceDisableDebugOutput")
+    local PreferedRuntime = ConfigFetcter.getConfig_Json("PreferedRuntime")
+    
+    if ForceDisableDebugOutput then
+        Debugger.ApplyOverides("DO_OUTPUT", false)
+    end
+
+    if PreferedRuntime ~= LRT_Detector.getRuntime() then
+        LuneTransulator.ForceRuntime(PreferedRuntime)
+    end
+end)
+
+if LRT_Detector.isLune() then
+    ConfigFetcter.load()
+end
+
 -- Module
 local XuauEngine = {}
 
 XuauEngine.Init = function()
-    if LRT_Detector.isLute then
+    if LRT_Detector.isLute() then
         ConfigFetcter.load()
     end
-    --ConfigFetcter.getConfig("")
     print("[!][Xuau] - Setup completed.")
 end
 
 XuauEngine.CompileToLuau = function(code: { string })
     if not isInitForLute and LRT_Detector.isLute() then
-        print("[!][Xuau] - Engine not initialized For Lute. Calling Init()...")
+        print("[!][Xuau] - Bootstrapper not initialized For Lute. Calling Init()...")
         XuauEngine.Init()
         isInitForLute = true
     end

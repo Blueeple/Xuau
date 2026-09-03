@@ -141,7 +141,7 @@ local GenerateRuntimeLibray = function(libName: string)
 		local luteSys_Path = "@lute/system"
 		local sysTarget = require(luteSys_Path :: string) :: { [string]: (...any) -> any }
 		for funcName, func: (...any) -> () in sysTarget do
-			libFunctions[funcName] = func
+			libFunctions[funcName] = func :: any
 		end
 	end
 	nativeLibs[libName] = libFunctions
@@ -176,8 +176,6 @@ local normalizeSystemData = function()
 	elseif System.os:find("linux") or System.os:find("arch") then
 		System.os = "linux"
 	end
-
-	--cwd checks here later
 end
 
 --[[
@@ -230,7 +228,7 @@ local LuneTransulator = {}
     Scrapes the native libraries for the current runtime.
 ]]
 LuneTransulator.loadRuntimeLibraries = function()
-	if next(nativeLibs) then
+	if next(nativeLibs :: { [string]: any }) then
 		return
 	end
 	for _, LibName in libraries do
@@ -247,100 +245,13 @@ LuneTransulator.getNativeLibs = function()
 end
 
 --[[
-    Probes the native libraries between Lute and lune and see who shared functions per lib.
-    - **DEBUGGING ONLY & Written using ChatGPT (No way I'm writting allat with no sleep)**
-]]
-LuneTransulator.probeNativeLibs = function()
-	if LRT_Detector.getRuntime() == "lute" then
-		local availableLibsForLune = {}
-		Debugger.ApplyOverides("DO_OUTPUT", true)
-		-- Lute stuff
-		print("[!] - Libraries in Lute")
-		Debugger.Out(nativeLibs)
-
-		-- Probbing lune
-		print("[!] - Probbing for Lune Libraries exposed in Lute runtime.")
-		for _, LibName in libraries do
-			local luneHas, lib = pcall(function(...)
-				local path = "@lune/" .. LibName
-				return require(path :: string) :: {}
-			end)
-			if luneHas then
-				print("Library found: " .. LibName)
-				availableLibsForLune[LibName:lower()] = lib
-			end
-		end
-		Debugger.Out(availableLibsForLune)
-		print("[!] - Comparing libs and closest functions, Via :match() and :find() and :lower()")
-		print("[!] - using custom detection algorithim.")
-		print("[!] - Checking for common libraries in Lute and Lune, Via Name cross-reference.")
-
-		for LibName, _ in availableLibsForLune do
-			if nativeLibs[LibName] then
-				print(LibName .. " was found in Lute")
-			end
-		end
-
-		-- Checking for common functions in each
-		--[[Notes:
-		    only the task library matches 1:1 so far
-
-		]]
-		print("[!] - Checking for common functions in each library")
-
-		local perfectMatches = {} :: { [string]: boolean }
-		local libsMatched = {} :: { [string]: {} }
-
-		for LibName, luneLib in availableLibsForLune do
-			if nativeLibs[LibName] then
-				print("[A] - Checking in: " .. LibName)
-
-				local luteCount = 0
-				local luneCount = 0
-				local commonCount = 0
-
-				for FuncName, _ in luneLib do
-					luneCount += 1
-
-					if nativeLibs[LibName][FuncName :: string] then
-						commonCount += 1
-						print(FuncName :: string .. " was found in both Lute and Lune for [" .. LibName .. "]")
-					end
-				end
-
-				for _ in nativeLibs[LibName] do
-					luteCount += 1
-				end
-
-				local isPerfectMatch = luneCount == luteCount and commonCount == luneCount and luneCount > 0
-
-				if isPerfectMatch then
-					perfectMatches[LibName] = true
-				end
-
-				libsMatched[LibName] = {
-					common = commonCount,
-					lune = luneCount,
-					lute = luteCount,
-					perfect = isPerfectMatch,
-				}
-
-				Debugger.Out(libsMatched[LibName])
-			end
-		end
-		Debugger.Out(libsMatched)
-		print("[!] - Completed check phase 1")
-	end
-end
-
---[[
     Initializes the LRT Library Map.
 ]]
 LuneTransulator.init = function()
 	if isInit then
 		return
 	end
-	if not next(nativeLibs) then
+	if not next(nativeLibs :: { [string]: any }) then
 		LuneTransulator.loadRuntimeLibraries()
 	end
 
@@ -353,6 +264,24 @@ LuneTransulator.init = function()
 
 	-- Init Process
 	isInit = true
+end
+
+--[[
+    Forces the runtime to be used.
+]]
+LuneTransulator.ForceRuntime = function(newRuntime: string)
+	if runtime == newRuntime then
+		return
+	end
+
+	isInit = false
+	runtime = newRuntime
+	print(`[!][LuneTransulator][Warning] - Forcing the runtime can cause Xuau to be unstable.`)
+	print(`[!][LuneTransulator] - Runtime was forced to {runtime} reloading...`)
+	table.clear(nativeLibs)
+	table.clear(nativeExternalNamespaces)
+	print(`[!][LuneTransulator] - Clean up completed...`)
+	LuneTransulator.init()
 end
 
 --[[
