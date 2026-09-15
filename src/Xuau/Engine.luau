@@ -3,6 +3,11 @@
 ]=]
 print("[Xuau] - Starting")
 
+-- Types
+type Configuration = {
+    Language: string,
+}
+
 -- Critical Modules
 local LRT_Detector = require("./dependencies/LRT-Detector")
 local LuneTransulator = require("./dependencies/LuneTransulator")
@@ -12,11 +17,12 @@ LRT_Detector.init()
 LuneTransulator.init()
 
 -- Modules
-local ConfigFetcter = require("./dependencies/ConfigFetcter")
+local ConfigFetcter = require("./dependencies/ConfigFetcher")
 local Debugger = require("./core/Debugger")
 local EZSignal = require("./dependencies/EZSignal")
 local lexer = require("./core/lexer")
 local parser = require("./core/parser")
+local langLoader = require("./core/langLoader")
 
 -- Variables
 local runtime = LRT_Detector.getRuntime()
@@ -46,17 +52,16 @@ ConfigFetcter.onLoad(function()
         Debugger.ApplyOverides("DO_OUTPUT", false)
     end
 
-    if PreferedRuntime ~= LRT_Detector.getRuntime() then
+    if PreferedRuntime ~= nil and PreferedRuntime ~= LRT_Detector.getRuntime() then
         LuneTransulator.ForceRuntime(PreferedRuntime)
     end
 end)
 
-if LRT_Detector.isLune() then
-    ConfigFetcter.load()
-end
-
 -- Module
 local XuauEngine = {}
+if LRT_Detector.isLune() or LRT_Detector.isZune() then
+    ConfigFetcter.load()
+end
 
 XuauEngine.Init = function()
     if LRT_Detector.isLute() then
@@ -65,13 +70,14 @@ XuauEngine.Init = function()
     print("[!][Xuau] - Setup completed.")
 end
 
-XuauEngine.CompileToLuau = function(code: { string })
+XuauEngine.CompileToLuau = function(language: string, code: { string })
     if not isInitForLute and LRT_Detector.isLute() then
         print("[!][Xuau] - Bootstrapper not initialized For Lute. Calling Init()...")
         XuauEngine.Init()
         isInitForLute = true
     end
     Debugger.Out("Compiling to Luau...")
+    local _lang = langLoader.getLanguage(language)
 	lexer.ReadCode(code[1])
 end
 

@@ -13,4 +13,5 @@ selene = "Kampfkarren/selene@0.31.0"
 # Most Luau runtimes LMAO
 luau = "luau-lang/luau@0.733.0"
 lune = "lune-org/lune@0.10.5"
-lute = "luau-lang/lute@1.0.1-nightly.20260807"
+lute = "luau-lang/lute@1.0.0"
+zune = "Scythe-Technology/zune@0.5.9"

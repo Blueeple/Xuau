@@ -16,32 +16,33 @@ local queryRuntime = function()
 	end)
 	if isRoblox then
 		runtime = "rblx"
+		isInit = true
+		return -- Stops at here when running in Roblox
 	end
 
-	-- Detecting Runtime
-	local isLune = pcall(function(...)
-		local lune = "@lune/task"
-		return require(lune) :: { any }
-	end)
+	-- Detecting Lute Runtime
 	local isLute = pcall(function(...)
 		local lute = "@lute/fs"
 		return require(lute) :: { any }
 	end)
+	if isLute and tostring(_VERSION):lower() == "luau" then
+		runtime = "lute"
+		isInit = true
+		print("[!][LRT-Detector] - Lute Runtime detected.")
+		return
+	end
 
-	-- Detect Lune/Lute runtime when both are present.
-	if isLune and isLute then
-		print("[!][LRT-Detector] - Detected Lune and Lute runtimes, Detecting Runtime...")
-		local isRunningLune, warnfunc = pcall(function(...)
-			return getfenv()["warn"] -- Only Lune / Roblox runtime has a warn global function
-		end)
-		if not isRunningLune and warnfunc then
-			runtime = "lute"
-			print("[!][LRT-Detector] - Lute Runtime detected.")
-		end
-	elseif isLune and not isLute then
+	-- Detecting Lune / Zune Runtimes
+	local curRuntime = tostring(_VERSION):lower()
+	if curRuntime:match("zune") == "zune" then
+		runtime = "zune"
+		print("[!][LRT-Detector] - Zune Runtime detected.")
+	end
+	if curRuntime:match("lune") == "lune" then
 		runtime = "lune"
 		print("[!][LRT-Detector] - Lune Runtime detected.")
 	end
+
 	isInit = true
 end
 
@@ -77,6 +78,16 @@ LRT_D.isLune = function(): boolean
 end
 
 --[[
+    Returns true if the runtime is Zune.
+]]
+LRT_D.isZune = function(): boolean
+	if not isInit then
+		queryRuntime()
+	end
+	return runtime == "zune"
+end
+
+--[[
     Returns true if the runtime is Lute.
 ]]
 LRT_D.isLute = function(): boolean
@@ -95,6 +106,5 @@ LRT_D.isRoblox = function(): boolean
 	end
 	return runtime == "rblx"
 end
-
 
 return LRT_D

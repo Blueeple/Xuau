@@ -1,7 +1,6 @@
 -- Test c++ code to run in our funny transpiler thing.
 return {[[
 //@prag LuauProton = { squB = eLineCheck } || can be "dLineCheck"
-#include <iostream>
 
 int add(int a, int b) {
     return a + b;
@@ -16,7 +15,7 @@ int main() {
         result += i;
     }
 
-    std::cout << result << std::endl;
-    return 0;
+    console.log(result);
+    return result;
 }
 ]]}

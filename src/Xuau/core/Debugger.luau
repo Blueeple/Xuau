@@ -9,7 +9,7 @@ local _LuauScript: { Name: string }
 
 -- Variables
 local Settings = {
-    DO_OUTPUT = true
+	DO_OUTPUT = true,
 }
 
 -- Funtions
@@ -78,7 +78,7 @@ local function GetScriptFileName()
 
 	if pluau_runtime == "rblx" then
 		return `{fileName:match("([^.]+)$")} | {lineNumber}`
-	elseif pluau_runtime == "lune" then
+	elseif LRT_Detector.isLune() or LRT_Detector.isZune() then
 		return `{fileName:match("([^\\]+)$")} | {lineNumber}`
 	else
 		return `{fileName:match("([^/]+)$")} | {lineNumber}` -- Lute  or other Unknown Luau RunTimes
@@ -96,11 +96,11 @@ end
     Applies an override to the Debugger.
 ]]
 Debugger.ApplyOverides = function(Overide: string, Value: any)
-    if Settings[Overide] ~= nil then
-        Settings[Overide] = Value
-    else
-        print(`[Debugger.luau] - Invalid Overide: {Overide}`)
-    end
+	if Settings[Overide] ~= nil then
+		Settings[Overide] = Value
+	else
+		print(`[Debugger.luau] - Invalid Overide: {Overide}`)
+	end
 end
 
 --[[
@@ -109,8 +109,9 @@ end
 Debugger.Warn = function(...)
 	if Settings.DO_OUTPUT then
 		local FileName = GetScriptFileName()
-		if LRT_Detector.getRuntime() == "rblx" then
-			logWarn(...)
+		if LRT_Detector.isRoblox() or LRT_Detector.isLune() then
+			logWarn(`[!][{FileName}] -`, ...)
+			return
 		end
 		-- Detects if the message has a Table to prettify in Luau
 		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" and typeof(...) == "table" then
