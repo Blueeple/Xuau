@@ -1,6 +1,6 @@
 # **Xuau (Pre-Alpha)**
 
-A custom Code emulator for emulating Code from another syntax in Luau, using `XLangs`
+A custom Code emulator for emulating Code from another syntax in Luau, using `vLangs`
 
 ## Supported Package Managers:
 * [Rokit](https://github.com/rojo-rbx/rokit)
