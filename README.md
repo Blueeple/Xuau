@@ -1,14 +1,14 @@
 # **Xuau (Pre-Alpha)**
 
-A Proton style Luau live transpiler that allows Roblox developers to write code from almost any language that can be transpiled to Luau bytecode to be executed in Luau via Roblox, Lune or Lute runtimes, using their native Runtimes or Emulated with Xiu (Xuau's version of Fiu)
+A custom Code emulator for emulating Code from another syntax in Luau, using `XLangs`
 
 ## Supported Package Managers:
 * [Rokit](https://github.com/rojo-rbx/rokit)
 * [Wally](https://wally.run)
 
  ## Supported Runtimes:
-* [Roblox](https://create.roblox.com/landing) - Actual Runtime
-* [Zune](https://zune.sh) - Native support
+* [Roblox](https://create.roblox.com/landing) - Native Runtime
+* [Zune](https://zune.sh) - Native support (Alternative)
 * [Lute](https://github.com/luau-lang/lute) - Native support
 * [Lune](https://lune-org.github.io/docs/) - Native support
 * [Luau](https://luau-lang.org) - Native support

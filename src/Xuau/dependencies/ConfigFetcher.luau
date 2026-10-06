@@ -16,7 +16,7 @@ export type XuauToml = {
 -- Modules
 local Debugger = require("../core/Debugger")
 local LRT_Detector = require("./LRT-Detector")
-local LuneTransulator = require("./LuneTransulator")
+local LuneTranslator = require("./LuneTranslator")
 
 -- Variables
 local stockConfig = [[
@@ -40,8 +40,8 @@ local funcsToRun = {} :: { (...any) -> () }
 -- External runtime implementation
 if not LRT_Detector.isRoblox() then
 	-- Lune Modules
-	local fs = LuneTransulator.getFileSystem()
-	local serde = LuneTransulator.getSerde()
+	local fs = LuneTranslator.getFileSystem()
+	local serde = LuneTranslator.getSerde()
 
 	-- Variables
 	local XuauEnginePath = "./"

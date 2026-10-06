@@ -11,11 +11,11 @@ type Configuration = {
 
 -- Critical Modules
 local LRT_Detector = require("./dependencies/LRT-Detector")
-local LuneTransulator = require("./dependencies/LuneTransulator")
+local LuneTranslator = require("./dependencies/LuneTranslator")
 
 -- Critical Inits
 LRT_Detector.init()
-LuneTransulator.init()
+LuneTranslator.init()
 
 -- Modules
 local ConfigFetcter = require("./dependencies/ConfigFetcher")
@@ -46,7 +46,7 @@ ConfigFetcter.onLoad(function()
     end
 
     if PreferedRuntime ~= nil and PreferedRuntime ~= LRT_Detector.getRuntime() then
-        LuneTransulator.ForceRuntime(PreferedRuntime)
+        LuneTranslator.ForceRuntime(PreferedRuntime)
     end
 end)
 

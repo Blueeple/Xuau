@@ -3,14 +3,14 @@
 local LRT_Detector = require("../dependencies/LRT-Detector")
 local ConfigFetcter = require("../dependencies/ConfigFetcher")
 local Debugger = require("../core/Debugger")
-local LuneTransulator = require("../dependencies/LuneTransulator")
+local LuneTranslator = require("../dependencies/LuneTranslator")
 
 -- Lune Modules
-local fs = LuneTransulator.getFileSystem()
-local serde = LuneTransulator.getSerde()
+local fs = LuneTranslator.getFileSystem()
+local serde = LuneTranslator.getSerde()
 
 -- Folder paths
-local cwd = LuneTransulator.getProcess().cwd()
+local cwd = LuneTranslator.getProcess().cwd()
 
 -- Module
 local langLoader = { _langs = {} :: { [string]: any } }
