@@ -308,9 +308,18 @@ local registeredGlobals = {} :: { [string]: typeof(zuneGlobal) & {} }
 local nativeLuneLibraryLink = {
 	lute = {
 		fs = {
-			-- Lune & Lute
-			copy = 2,
-			move = 2,
+			copy = function(curLib: { [string]: (...any) -> any }, source: string, destination: string, overwrite: boolean)
+				if overwrite then
+					curLib["remove"](destination)
+				end
+				curLib["copy"](source, destination)
+			end,
+			move = function(curLib: { [string]: (...any) -> any }, source: string, destination: string, overwrite: boolean)
+				if overwrite then
+					curLib["remove"](destination)
+				end
+				curLib["copy"](source, destination)
+			end,
 			readDir = function(curLib: { [string]: (...any) -> any }, path: string)
 				local result = curLib["listdir"](path)
 				local luneResult = {}
@@ -367,6 +376,15 @@ local nativeLuneLibraryLink = {
 	},
 	zune = {
 		fs = {
+			copy = function(curLib: { [string]: (...any) -> any }, source: string, destination: string, overwrite: boolean)
+				curLib["copy"](source, destination, overwrite)
+			end,
+			move = function(curLib: { [string]: (...any) -> any }, source: string, destination: string, overwrite: boolean)
+				curLib["move"](source, destination, overwrite)
+			end,
+			writeDir = function(curLib: { [string]: (...any) -> any }, path: string)
+				curLib["makeDir"](path)
+			end,
 			readDir = function(curLib: { [string]: (...any) -> any }, path: string)
 				local result = curLib["entries"](path)
 				local luneResult = {}
@@ -374,6 +392,9 @@ local nativeLuneLibraryLink = {
 					luneResult[#luneResult + 1] = luteDir.name
 				end
 				return luneResult
+			end,
+			writeFile = function(curLib: { [string]: (...any) -> any }, path: string, content: string)
+				curLib["writeFileSync"](path, content)
 			end,
 			readFile = function(curLib: { [string]: (...any) -> any }, path: string)
 				local content = curLib["readFile"](path, false)
@@ -396,7 +417,7 @@ local nativeLuneLibraryLink = {
 				if decoder_Format then
 					return decoder_Format["decode"](data)
 				else
-					error(`[LuneTransulator][Zune]: unknown 'serde' format: {format}`)
+					error(`[LuneTransulator][Zune]: unknown 'serde' decode format: {format}`)
 				end
 			end,
 			encode = function(curLib: { [string]: any }, format: string, data: string)
@@ -404,12 +425,15 @@ local nativeLuneLibraryLink = {
 				if encoder_Format then
 					return encoder_Format["encode"](data)
 				else
-					error(`[LuneTransulator][Zune]: unknown 'serde' format: {format}`)
+					error(`[LuneTransulator][Zune]: unknown 'serde' encode format: {format}`)
 				end
 			end,
 		},
 	},
-}
+	Roblox = {
+		fs = {},
+	},
+} :: { [string]: { [string]: any } }
 
 -- [ Runtime ]
 local runtime = LRT_Detector.getRuntime()
@@ -476,7 +500,7 @@ local GenerateRuntimeExternalLibray = function()
 	end
 	for namespace, libs in externalNamespaces[runtime] do
 		if namespace == "_NonLuneFilePath" then
-			namespace = nil
+			namespace = nil :: any
 			continue
 		end
 		Debugger.Warn(`Loading External namespace: {namespace}`)
@@ -558,7 +582,7 @@ local LuneTransulator = {}
 ]]
 LuneTransulator.loadRuntimeLibraries = function()
 	-- Zune detection
-	if next(zuneGlobal) ~= nil then
+	if next(zuneGlobal :: { any }) ~= nil then
 		for libName, lib in zuneGlobal :: { [string]: any } do
 			nativeLibs[libName] = lib
 		end
@@ -597,7 +621,7 @@ LuneTransulator.init = function()
 
 	-- Libraries
 	System.cwd = doLibraryCall("process", "cwd")
-	if externalNamespaces[LRT_Detector.getRuntime()] and externalNamespaces[LRT_Detector.getRuntime()]["_NonLuneFilePath"] then
+	if externalNamespaces[runtime] and externalNamespaces[runtime]["_NonLuneFilePath"] then
 		System.cwd = System.cwd .. "\\"
 	end
 	System.os = string.lower(doLibraryCall("process", "os") :: string or "XuauVirualOS") :: string
@@ -652,6 +676,19 @@ LuneTransulator.getFileSystem = function()
 		isFile = function(path: string): boolean
 			return luneLib_CallFunc("fs", "isFile", path) :: any
 		end,
+		-- File system
+		copy = function(source: string, destination: string, overwrite: boolean)
+			return luneLib_CallFunc("fs", "copy", source, destination, overwrite)
+		end,
+		move = function(source: string, destination: string, overwrite: boolean)
+			return luneLib_CallFunc("fs", "move", source, destination, overwrite)
+		end,
+		removeFile = function(path: string)
+			return luneLib_CallFunc("fs", "removeFile", path)
+		end,
+		removeDir = function(path: string)
+			return luneLib_CallFunc("fs", "removeDir", path)
+		end,
 	}
 end
 
@@ -680,6 +717,18 @@ LuneTransulator.getSerde = function()
 		]]
 		encode = function(format: string, data: { string }): string
 			return luneLib_CallFunc("serde", "encode", format, data) :: any
+		end,
+		compress = function(format: string, data: { string }): string
+			return luneLib_CallFunc("serde", "compress", format, data) :: any
+		end,
+		decompress = function(format: string, data: string): { string }
+			return luneLib_CallFunc("serde", "decompress", format, data) :: any
+		end,
+		hash = function(data: string): string
+			return luneLib_CallFunc("serde", "hash", data) :: any
+		end,
+		hmac = function(data: string, key: string): string
+			return luneLib_CallFunc("serde", "hmac", data, key) :: any
 		end,
 	}
 end

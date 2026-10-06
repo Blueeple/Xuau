@@ -10,7 +10,5 @@ local _Bin = ReplicatedFirst:WaitForChild("Bin")
 local Transulator = require(ReplicatedStorage:WaitForChild("Xuau").Engine)
 
 -- CodeToTest
-local _Test = require("./Bin/TestCode")
-local exampleLine = { "int x = 5;" }
-
-Transulator.CompileToLuau(exampleLine)
+local Test = require("./Bin/TestCode")
+Transulator.CompileToLuau("cpp", Test)

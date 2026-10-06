@@ -2,6 +2,7 @@
     Scripted by @Blueeple on @Github
 ]=]
 print("[Xuau] - Starting")
+local init = os.clock()
 
 -- Types
 type Configuration = {
@@ -21,7 +22,7 @@ local ConfigFetcter = require("./dependencies/ConfigFetcher")
 local Debugger = require("./core/Debugger")
 local EZSignal = require("./dependencies/EZSignal")
 local lexer = require("./core/lexer")
-local parser = require("./core/parser")
+--local parser = require("./core/parser")
 local langLoader = require("./core/langLoader")
 
 -- Variables
@@ -34,14 +35,6 @@ EZSignal.new("Xuau")
 EZSignal.new("Xuau-Parser")
 
 -- [ Signal Binds ]
-EZSignal.BindTo("Xuau", function(intructionId: number, arg: string)
-	print(intructionId, arg)
-end)
-EZSignal.BindTo("Xuau-Parser", function(charTable: { string })
-	local _ = parser.newFile()
-	Debugger.Out(charTable)
-	--parser.parseLexerResult(charTable)
-end)
 
 ConfigFetcter.onLoad(function()
     -- Configs
@@ -59,15 +52,17 @@ end)
 
 -- Module
 local XuauEngine = {}
-if LRT_Detector.isLune() or LRT_Detector.isZune() then
+if not LRT_Detector.isLute() and not LRT_Detector.isRoblox() then
     ConfigFetcter.load()
+    print(`[!][Xuau] - Engine early init in {os.clock() - init}s.`)
 end
 
 XuauEngine.Init = function()
     if LRT_Detector.isLute() then
         ConfigFetcter.load()
+        isInitForLute = true
     end
-    print("[!][Xuau] - Setup completed.")
+    print(`[!][Xuau] - Engine initialized in {os.clock() - init}s.`)
 end
 
 XuauEngine.CompileToLuau = function(language: string, code: { string })
@@ -75,10 +70,17 @@ XuauEngine.CompileToLuau = function(language: string, code: { string })
         print("[!][Xuau] - Bootstrapper not initialized For Lute. Calling Init()...")
         XuauEngine.Init()
         isInitForLute = true
+    elseif LRT_Detector.isRoblox() then
+        print(`[!][Xuau] - Engine initialized in {os.clock() - init}s.`)
     end
     Debugger.Out("Compiling to Luau...")
-    local _lang = langLoader.getLanguage(language)
-	lexer.ReadCode(code[1])
+    local vlang = langLoader.getLanguage(language)
+    if not vlang._Exists then
+        Debugger.Warn(`Language: {language} not found.`)
+        Debugger.Warn(`Stopping execution.`)
+        return
+    end
+	lexer.ReadCode(vlang :: any, code[1])
 end
 
 return XuauEngine

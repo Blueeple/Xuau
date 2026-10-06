@@ -17,7 +17,7 @@ native_code_gen = true
 [resolvers.formatter]
 max_depth = 4
 use_color = true
-table_address = true
+table_address = false
 recursive_Table = false
 buffer_max_display = 48
 

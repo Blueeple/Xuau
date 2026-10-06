@@ -91,6 +91,10 @@ if not LRT_Detector.isRoblox() then
 			fs.writeFile("./Xuau.toml", stockConfig)
 			local XuauToml_File = fs.readFile("./Xuau.toml")
 			XuauConfig_Toml = serde.decode("toml", XuauToml_File) :: XuauToml
+			if XuauConfig_Toml.Xuau.useTOML_Config == true then
+				Debugger.Out("Xuau.toml 'useTOML_Config' is enabled.")
+				isConfigModeInternal = true
+			end
 		end
 	end
 

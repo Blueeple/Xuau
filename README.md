@@ -1,4 +1,4 @@
-# **Xuau**
+# **Xuau (Pre-Alpha)**
 
 A Proton style Luau live transpiler that allows Roblox developers to write code from almost any language that can be transpiled to Luau bytecode to be executed in Luau via Roblox, Lune or Lute runtimes, using their native Runtimes or Emulated with Xiu (Xuau's version of Fiu)
 
@@ -7,10 +7,11 @@ A Proton style Luau live transpiler that allows Roblox developers to write code 
 * [Wally](https://wally.run)
 
  ## Supported Runtimes:
-* [Roblox](https://create.roblox.com/landing) - Originally Built for Roblox
+* [Roblox](https://create.roblox.com/landing) - Actual Runtime
+* [Zune](https://zune.sh) - Native support
 * [Lute](https://github.com/luau-lang/lute) - Native support
 * [Lune](https://lune-org.github.io/docs/) - Native support
-* [Zune](https://zune.sh) - Native support
+* [Luau](https://luau-lang.org) - Native support
 
 ## Installation (Not final)
 * Rokit - `Rokit add Xuau`
@@ -18,7 +19,7 @@ A Proton style Luau live transpiler that allows Roblox developers to write code 
 * Roblox Creator Store [Model](https://create.roblox.com/landing)
 
 ## Setup
-* A supported Runtime. ([Lune](https://lune-org.github.io/docs/) / [Roblox](https://create.roblox.com/landing) is recommended)
+* A supported Runtime. ([Zune](https://zune.sh) / [Roblox](https://create.roblox.com/landing) is recommended)
 * A syntax map package for your target language.
 
 ## Trivia:
