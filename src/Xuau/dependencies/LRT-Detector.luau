@@ -5,19 +5,23 @@
 -- Variables
 local runtime = "luau"
 local isInit = false
+local skipRBXCheck = false
 
 --[[
     Detects the Luau runtime.
 ]]
 local queryRuntime = function()
-	-- Check for Roblox Runtime
-	local isRoblox = pcall(function(...)
-		print(getfenv().script.Name)
-	end)
-	if isRoblox then
-		runtime = "rblx"
-		isInit = true
-		return -- Stops at here when running in Roblox
+	local isRoblox = false
+	if not skipRBXCheck then
+		-- Check for Roblox Runtime
+		isRoblox = pcall(function(...)
+			print(getfenv().script.Name) -- Safest detection method.
+		end)
+		if isRoblox then
+			runtime = "rblx"
+			isInit = true
+			return -- Stops at here when running in Roblox
+		end
 	end
 
 	-- Detecting Lute Runtime

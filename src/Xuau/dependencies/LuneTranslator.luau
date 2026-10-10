@@ -373,6 +373,23 @@ local nativeLuneLibraryLink = {
 				end
 			end,
 		},
+		task = {
+			cancel = function(curLib: { [string]: (...any) -> any }, thread: thread)
+				return curLib["cancel"](thread)
+			end,
+			delay = function(curLib: { [string]: (...any) -> any }, duration: number, functionOrThread: (...any) -> any | thread, ...)
+				curLib["delay"](duration, functionOrThread, ...)
+			end,
+			defer = function(curLib: { [string]: (...any) -> any }, functionOrThread: (...any) -> any | thread, ...)
+				curLib["defer"](functionOrThread, ...)
+			end,
+			spawn = function(curLib: { [string]: (...any) -> any }, func: (...any) -> any)
+				return curLib["spawn"](func)
+			end,
+			wait = function(curLib: { [string]: (...any) -> any }, time: number)
+				return curLib["wait"](time)
+			end,
+		},
 	},
 	zune = {
 		fs = {
@@ -427,6 +444,23 @@ local nativeLuneLibraryLink = {
 				else
 					error(`[LuneTransulator][Zune]: unknown 'serde' encode format: {format}`)
 				end
+			end,
+		},
+		task = {
+			cancel = function(curLib: { [string]: (...any) -> any }, thread: thread)
+				return curLib["cancel"](thread)
+			end,
+			delay = function(curLib: { [string]: (...any) -> any }, duration: number, functionOrThread: (...any) -> any | thread, ...)
+				curLib["delay"](duration, functionOrThread, ...)
+			end,
+			defer = function(curLib: { [string]: (...any) -> any }, functionOrThread: (...any) -> any | thread, ...)
+				curLib["defer"](functionOrThread, ...)
+			end,
+			spawn = function(curLib: { [string]: (...any) -> any }, func: (...any) -> any)
+				return curLib["spawn"](func)
+			end,
+			wait = function(curLib: { [string]: (...any) -> any }, time: number)
+				return curLib["wait"](time)
 			end,
 		},
 	},
@@ -729,6 +763,26 @@ LuneTransulator.getSerde = function()
 		end,
 		hmac = function(data: string, key: string): string
 			return luneLib_CallFunc("serde", "hmac", data, key) :: any
+		end,
+	}
+end
+
+LuneTransulator.getTask = function()
+	return {
+		cancel = function(thread: thread)
+			return luneLib_CallFunc("task", "cancel", thread) :: any
+		end,
+		delay = function(duration: number, functionOrThread: (...any) -> any | thread, ...)
+			return luneLib_CallFunc("task", "delay", duration, functionOrThread, ...) :: any
+		end,
+		defer = function(functionOrThread: (...any) -> any | thread, ...)
+			return luneLib_CallFunc("task", "defer", functionOrThread, ...) :: any
+		end,
+		spawn = function(func: (...any) -> any)
+			return luneLib_CallFunc("task", "spawn", func) :: any
+		end,
+		wait = function(time: number)
+			return luneLib_CallFunc("task", "wait", time) :: any
 		end,
 	}
 end

@@ -115,7 +115,7 @@ Debugger.Warn = function(...)
 		end
 		-- Detects if the message has a Table to prettify in Luau
 		if LRT_Detector.getRuntime() == "lute" or LRT_Detector.getRuntime() == "luau" and typeof(...) == "table" then
-			FormatTextForLuauCLI(`[!][{FileName}] -`, ...)
+			FormatTextForLuauCLI(`[{FileName}] -`, ...)
 			return
 		end
 		print(`[!][{FileName}] -`, ...)

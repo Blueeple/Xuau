@@ -18,6 +18,7 @@ langLoader.getLanguage = function(languageName: string)
     if LRT_Detector.isRoblox() then
         return {
             _Exists = true,
+
         }
     end
 	if not ConfigFetcter.getConfig_Toml("path") or ConfigFetcter.getConfig_Toml("path") == "" then
@@ -65,3 +66,4 @@ langLoader.getLanguage = function(languageName: string)
 end
 
 return langLoader
+ 
