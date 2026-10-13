@@ -656,7 +656,7 @@ LuneTransulator.init = function()
 	-- Libraries
 	System.cwd = doLibraryCall("process", "cwd")
 	if externalNamespaces[runtime] and externalNamespaces[runtime]["_NonLuneFilePath"] then
-		System.cwd = System.cwd .. "\\"
+		System.cwd = System.cwd:gsub("\\", "/") .. "/"
 	end
 	System.os = string.lower(doLibraryCall("process", "os") :: string or "XuauVirualOS") :: string
 
@@ -739,7 +739,7 @@ LuneTransulator.getSerde = function()
             - Toml only works when you configure lute's "batteries" dependencies.
             - Yaml, and Xml are not supported on Lute as of now, Until I create a workaround, or Lute gets updated.
 		]]
-		decode = function(format: string, encoded: string): { string }
+		decode = function(format: string, encoded: string): { [string]: any }
 			return luneLib_CallFunc("serde", "decode", format, encoded) :: any
 		end,
 		--[[
@@ -767,6 +767,9 @@ LuneTransulator.getSerde = function()
 	}
 end
 
+--[[
+    Gets the Task library functions
+]]
 LuneTransulator.getTask = function()
 	return {
 		cancel = function(thread: thread)
@@ -778,7 +781,7 @@ LuneTransulator.getTask = function()
 		defer = function(functionOrThread: (...any) -> any | thread, ...)
 			return luneLib_CallFunc("task", "defer", functionOrThread, ...) :: any
 		end,
-		spawn = function(func: (...any) -> any)
+		spawn = function(func: (...any) -> ())
 			return luneLib_CallFunc("task", "spawn", func) :: any
 		end,
 		wait = function(time: number)

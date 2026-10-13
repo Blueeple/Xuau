@@ -35,6 +35,13 @@ EZSignal.new = function(Name: string)
 end
 
 --[=[
+    Returns the Signals and data.
+]=]
+EZSignal.getInternal = function()
+	return Signals
+end
+
+--[=[
     Adds a function to be fired in a signal
 ]=]
 EZSignal.BindTo = function(Name: string, func: (...any) -> ())

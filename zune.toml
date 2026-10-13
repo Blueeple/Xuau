@@ -15,7 +15,7 @@ native_code_gen = true
 # Formatter settings
 #  This affects the output of the formatter while printing.
 [resolvers.formatter]
-max_depth = 4
+max_depth = 6
 use_color = true
 table_address = false
 recursive_Table = false

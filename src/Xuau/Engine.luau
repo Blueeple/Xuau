@@ -54,7 +54,7 @@ end)
 local XuauEngine = {}
 if not LRT_Detector.isLute() and not LRT_Detector.isRoblox() then
 	ConfigFetcter.load()
-	print(`[!][Xuau] - Engine early init in {os.clock() - init}s.`)
+	print(`[!][Xuau][Early] - Engine in [{string.format("%.2f", (os.clock() - init) * 1000)}ms].`)
 end
 
 XuauEngine.Init = function()
@@ -62,16 +62,16 @@ XuauEngine.Init = function()
 		ConfigFetcter.load()
 		isInitForLute = true
 	end
-	print(`[!][Xuau] - Engine initialized in {os.clock() - init}s.`)
+	print(`[!][Xuau] - Engine initialized in [{string.format("%.2f", (os.clock() - init) * 1000)}ms].`)
 end
 
-XuauEngine.CompileToLuau = function(language: string, code: { string })
+XuauEngine.CompileToLuau = function(language: string, code: { string }, Name: string)
 	if not isInitForLute and LRT_Detector.isLute() then
 		print("[!][Xuau] - Bootstrapper not initialized For Lute. Calling Init()...")
 		XuauEngine.Init()
 		isInitForLute = true
 	elseif LRT_Detector.isRoblox() then
-		print(`[!][Xuau] - Engine initialized in {os.clock() - init}s.`)
+		print(`[!][Xuau] - Engine initialized in [{string.format("%.2f", (os.clock() - init) * 1000)}ms].`)
 	end
 	Debugger.Out("Compiling to Luau...")
 	local vlang = langLoader.getLanguage(language)
@@ -80,7 +80,7 @@ XuauEngine.CompileToLuau = function(language: string, code: { string })
 		Debugger.Warn(`Stopping execution.`)
 		return
 	end
-	lexer.ReadCode(vlang :: any, code[1])
+	lexer.ReadCode(vlang :: any, code[1], Name)
 end
 
 return XuauEngine
