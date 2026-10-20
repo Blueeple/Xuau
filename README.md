@@ -19,7 +19,7 @@ A custom Code emulator for emulating Code from another syntax in Luau, using `vL
 * Roblox Creator Store [Model](https://create.roblox.com/landing)
 
 ## Setup
-* A supported Runtime. ([Zune](https://zune.sh) / [Roblox](https://create.roblox.com/landing) is recommended)
+* A supported Runtime. ([Zune](https://zune.sh) / [Lute](https://github.com/luau-lang/lute) / [Roblox](https://create.roblox.com/landing) is recommended)
 * A syntax map package for your target language.
 
 ## Trivia:

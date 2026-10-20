@@ -1,5 +1,4 @@
 --!strict
---!native
 -- Modules
 local LRT_Detector = require("../dependencies/LRT-Detector")
 
@@ -20,7 +19,7 @@ local Settings = {
     - Don't complain about slightly bad formatting for string LMAO.
     - ChatGPT wrote this btw (I'm fixing this bih later LMAO)
 ]]
-local function FormatTextForLuauCLI(...)
+@native local function FormatTextForLuauCLI(...)
 	local output = {}
 	local visited = {}
 

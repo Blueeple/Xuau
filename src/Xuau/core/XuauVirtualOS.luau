@@ -1,2 +1,6 @@
+--!strict
+--!optimize 2
 --!native
--- This is for Roblox and whatnot UHUHHUHUHUHUHHUHH idk breh BUILD A OPERTATING SYS AT THIS PONT WHHWHAHWHWWH
+local XuauVOS = {}
+
+return XuauVOS

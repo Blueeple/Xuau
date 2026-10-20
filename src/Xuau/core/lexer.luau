@@ -1,15 +1,13 @@
 --!strict
---!native
---!optimize 2
 -- Types
 type vLang_Cached = {
 	-- Configs
 	lexerMode: string,
 	lineRate: number,
 	useMultithreading: boolean,
-	useGlobalLexer: boolean,
+	useXuauLexer: boolean,
 	-- Generated Maps
-	mappings: { [string]: { _id: number, keys: { string } } },
+	mappings: { [string]: { _id: string, keys: { string } } },
 }
 
 -- Modules
@@ -41,31 +39,60 @@ local lexerModes = {
     ]]
 	quickMultMode1 = function(code: string, Count: number, Name: string, langName: string)
 		local config = languageCache[langName]
-		if Count > 296 and config.useMultithreading  then
+		if Count > 323 and config.useMultithreading then
 			Debugger.Warn(`Lexer rate's above [512] lines with useMultithreading may cause performance bottlenecks, Count: [{Count}]`)
 		end
+		if LRT_Detector.isZune() and config.useMultithreading then
+		    Debugger.Warn(`Detected [Zune] runtime using Multithreading may result in ZERO performance gain.`)
+		end
+		local lineSplitter = "║"
 		local lines = code:split("\n")
 		local startTimer = os.clock()
-		local loopMaxInterations = math.ceil(#lines / (Count / 4))
+		local loopMaxIterations = math.ceil(#lines / math.max(1, math.floor(Count)))
 		tasksTracker[Name] = {}
 
-		for batchIndex = 1, loopMaxInterations do
+		for batchIndex = 1, loopMaxIterations do
 			local taskId = #tasksTracker[Name] + 1
-			local comboLine = ""
 			local firstLine = (batchIndex - 1) * Count + 1
 			local lastLine = math.min(firstLine + Count - 1, #lines)
+			local forTokens = {} :: { string }
+			local _tokenizedLines = {} :: { string }
 			local handler = function()
 				for lineIndex = firstLine, lastLine do
 					if lines[lineIndex] then
 						local line = lines[lineIndex]:gsub("^%s+", "")
 						if not line:match("^%s*$") then
-							comboLine = `{comboLine}{line}║`
+							table.insert(forTokens, line)
 						end
 					end
 				end
-				--print(comboLine)
-				-- tokenization here
-				-- use gsub & match maybe????
+				local rawCode_Merged = table.concat(forTokens, lineSplitter)
+				local keysToSeek = {} :: { string }
+				local languageMappings = languageCache[langName].mappings
+				for _, TokenData: { _id: string, keys: { string } } in languageMappings do
+					for tokenIndex = 1, #TokenData.keys do
+						local tokenToCheck = TokenData.keys[tokenIndex]
+						if rawCode_Merged:find(tokenToCheck, 1, true) then
+							table.insert(keysToSeek, tokenToCheck)
+						end
+					end
+				end
+				for _, Line in forTokens do
+					local cursor = 1
+					while cursor <= #Line do
+						local byte = string.byte(Line, cursor)
+						if byte == 32 or byte == 9 then
+							--print("Space and tab")
+							cursor += 1
+						elseif byte == 10 then
+							--print("Newline")
+							cursor += 1
+						else
+							--print("Token")
+							cursor += 1
+						end
+					end
+				end
 			end
 			if config.useMultithreading then
 				local thread = Task.spawn(function(...)
@@ -77,8 +104,8 @@ local lexerModes = {
 				EZSignal.Fire(XuauLexer, taskId)
 				handler()
 			end
-			if batchIndex == loopMaxInterations then
-			    Debugger.Out(`Tasks: [{#tasksTracker[Name]}]`)
+			if batchIndex == loopMaxIterations then
+				Debugger.Out(`Tasks: [{#tasksTracker[Name]}]`)
 				Debugger.Out(`Processed file: [{Name}] in [{string.format("%.2f", (os.clock() - startTimer) * 1000)}ms].`)
 			end
 		end
@@ -97,7 +124,6 @@ Lexer.ReadCode = function(vlang: langLoader.vLang_Root, code: string, Name: stri
 	local useCustomLexer = next(vlang.customLexer) ~= nil
 	local lexerRuleset = vlang.lexerRuleset
 	local config = {} :: vLang_Cached
-
 	if not languageCache[vlang._Name] then
 		languageCache[vlang._Name] = {}
 		config = languageCache[vlang._Name]
@@ -108,19 +134,14 @@ Lexer.ReadCode = function(vlang: langLoader.vLang_Root, code: string, Name: stri
 
 		local currentAstId = 0
 		for mapType, data: { string | number } in vlang.langLexerMappings :: { [string]: {} } do
-			-- Checking for userdata bloat and skipping
-			if (LRT_Detector.isLute() and typeof(mapType) == "userdata") or typeof(mapType) == "userdata" then
-				data = nil :: never
-				continue
-			end
 			if currentAstId ~= data[1] then
 				currentAstId = data[1] :: number
 				table.remove(data, 1)
 			end
-			config.mappings[mapType] = { _id = currentAstId, keys = data }
+			config.mappings[mapType] = { _id = tostring(currentAstId), keys = data }
 		end
 	end
-	if not useCustomLexer then
+	if not useCustomLexer or config.useXuauLexer then
 		lexerModes[config.lexerMode](code, config.lineRate, Name, vlang._Name)
 	else
 		-- custom lexer implementation

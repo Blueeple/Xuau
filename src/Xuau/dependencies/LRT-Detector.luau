@@ -1,4 +1,3 @@
---!native
 --!strict
 --!optimize 2
 

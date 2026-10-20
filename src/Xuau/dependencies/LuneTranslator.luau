@@ -260,6 +260,7 @@ type IO = {
 -- Modules
 local Debugger = require("../core/Debugger")
 local LRT_Detector = require("./LRT-Detector")
+local XuauVOS = require("./XuauVOS")
 
 -- Variables
 -- [ Libaries ]
@@ -353,10 +354,22 @@ local nativeLuneLibraryLink = {
 			decode = function(_, format: string, data: string): string | { [string]: any }
 				if format:lower() == "json" then
 					local std_json = nativeExternalNamespaces["std"]["json"]
-					return std_json.deserialize(data, false)
+					local result = std_json.deserialize(data, false)
+					for index, _ in result do
+						if typeof(index) == "userdata" then
+							result[index] = nil
+						end
+					end
+					return result
 				elseif format:lower() == "toml" then
 					local batteries_toml = nativeExternalNamespaces["batteries"]["toml"]
-					return batteries_toml.deserialize(data, false)
+					local result = batteries_toml.deserialize(data, false)
+					for index, _ in result do
+						if typeof(index) == "userdata" then
+							result[index] = nil
+						end
+					end
+					return result
 				else
 					return ""
 				end
@@ -405,8 +418,8 @@ local nativeLuneLibraryLink = {
 			readDir = function(curLib: { [string]: (...any) -> any }, path: string)
 				local result = curLib["entries"](path)
 				local luneResult = {}
-				for _, luteDir: { name: string } in result do
-					luneResult[#luneResult + 1] = luteDir.name
+				for _, zuneDir: { name: string } in result do
+					luneResult[#luneResult + 1] = zuneDir.name
 				end
 				return luneResult
 			end,
@@ -465,7 +478,77 @@ local nativeLuneLibraryLink = {
 		},
 	},
 	Roblox = {
-		fs = {},
+		fs = {
+			copy = function(curLib: { [string]: (...any) -> any }, source: string, destination: string, overwrite: boolean)
+				curLib["copy"](source, destination, overwrite)
+			end,
+			move = function(curLib: { [string]: (...any) -> any }, source: string, destination: string, overwrite: boolean)
+				curLib["move"](source, destination, overwrite)
+			end,
+			writeDir = function(curLib: { [string]: (...any) -> any }, path: string)
+				curLib["makeDir"](path)
+			end,
+			readDir = function(curLib: { [string]: (...any) -> any }, path: string)
+				local result = curLib["entries"](path)
+				local luneResult = {}
+				for _, zuneDir: { name: string } in result do
+					luneResult[#luneResult + 1] = zuneDir.name
+				end
+				return luneResult
+			end,
+			writeFile = function(curLib: { [string]: (...any) -> any }, path: string, content: string)
+				curLib["writeFileSync"](path, content)
+			end,
+			readFile = function(curLib: { [string]: (...any) -> any }, path: string)
+				local content = curLib["readFile"](path, false)
+				return content
+			end,
+			isDir = function(curLib: { [string]: (...any) -> any }, path: string)
+				local parent = path
+				local fileStats = curLib["stat"](parent) :: { kind: string }
+				return fileStats.kind == "directory"
+			end,
+			isFile = function(curLib: { [string]: (...any) -> any }, path: string)
+				local parent = path
+				local fileStats = curLib["stat"](parent) :: { kind: string }
+				return fileStats.kind == "file"
+			end,
+		},
+		serde = {
+			decode = function(curLib: { [string]: any }, format: string, data: string)
+				local decoder_Format = curLib[format] :: { decode: (string) -> any }
+				if decoder_Format then
+					return decoder_Format["decode"](data)
+				else
+					error(`[LuneTransulator][Zune]: unknown 'serde' decode format: {format}`)
+				end
+			end,
+			encode = function(curLib: { [string]: any }, format: string, data: string)
+				local encoder_Format = curLib[format] :: { encode: (string) -> any }
+				if encoder_Format then
+					return encoder_Format["encode"](data)
+				else
+					error(`[LuneTransulator][Zune]: unknown 'serde' encode format: {format}`)
+				end
+			end,
+		},
+		task = {
+			cancel = function(curLib: { [string]: (...any) -> any }, thread: thread)
+				return curLib["cancel"](thread)
+			end,
+			delay = function(curLib: { [string]: (...any) -> any }, duration: number, functionOrThread: (...any) -> any | thread, ...)
+				curLib["delay"](duration, functionOrThread, ...)
+			end,
+			defer = function(curLib: { [string]: (...any) -> any }, functionOrThread: (...any) -> any | thread, ...)
+				curLib["defer"](functionOrThread, ...)
+			end,
+			spawn = function(curLib: { [string]: (...any) -> any }, func: (...any) -> any)
+				return curLib["spawn"](func)
+			end,
+			wait = function(curLib: { [string]: (...any) -> any }, time: number)
+				return curLib["wait"](time)
+			end,
+		},
 	},
 } :: { [string]: { [string]: any } }
 

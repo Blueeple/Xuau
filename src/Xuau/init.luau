@@ -10,20 +10,22 @@ type Configuration = {
 }
 
 -- Critical Modules
-local LRT_Detector = require("./dependencies/LRT-Detector")
-local LuneTranslator = require("./dependencies/LuneTranslator")
+local LRT_Detector = require("./Xuau/dependencies/LRT-Detector")
+local LuneTranslator = require("./Xuau/dependencies/LuneTranslator")
 
 -- Critical Inits
 LRT_Detector.init()
 LuneTranslator.init()
 
 -- Modules
-local ConfigFetcter = require("./dependencies/ConfigFetcher")
-local Debugger = require("./core/Debugger")
-local EZSignal = require("./dependencies/EZSignal")
-local lexer = require("./core/lexer")
---local parser = require("./core/parser")
-local langLoader = require("./core/langLoader")
+local ConfigFetcter = require("./Xuau/dependencies/ConfigFetcher")
+local Debugger = require("./Xuau/core/Debugger")
+local EZSignal = require("./Xuau/dependencies/EZSignal")
+local lexer = require("./Xuau/core/lexer")
+local langLoader = require("./Xuau/core/langLoader")
+
+-- Lune
+local fs = LuneTranslator.getFileSystem()
 
 -- Variables
 local runtime = LRT_Detector.getRuntime()
@@ -57,6 +59,10 @@ if not LRT_Detector.isLute() and not LRT_Detector.isRoblox() then
 	print(`[!][Xuau][Early] - Engine in [{string.format("%.2f", (os.clock() - init) * 1000)}ms].`)
 end
 
+--[=[
+    Initializes the Xuau Engine.
+    - Optional
+]=]
 XuauEngine.Init = function()
 	if LRT_Detector.isLute() then
 		ConfigFetcter.load()
@@ -65,7 +71,22 @@ XuauEngine.Init = function()
 	print(`[!][Xuau] - Engine initialized in [{string.format("%.2f", (os.clock() - init) * 1000)}ms].`)
 end
 
-XuauEngine.CompileToLuau = function(language: string, code: { string }, Name: string)
+--[=[
+    Reads the external File.
+]=]
+XuauEngine.ReadExternalFile = function(path: string)
+    local fileExists = fs.isFile(path)
+    if fileExists then
+       return fs.readFile(path) 
+    end
+    Debugger.Out(`Failed to read path [{path}]`)
+    return ""
+end
+
+--[=[
+    
+]=]
+XuauEngine.CompileToLuau = function(language: string, code: string, Name: string)
 	if not isInitForLute and LRT_Detector.isLute() then
 		print("[!][Xuau] - Bootstrapper not initialized For Lute. Calling Init()...")
 		XuauEngine.Init()
@@ -80,7 +101,7 @@ XuauEngine.CompileToLuau = function(language: string, code: { string }, Name: st
 		Debugger.Warn(`Stopping execution.`)
 		return
 	end
-	lexer.ReadCode(vlang :: any, code[1], Name)
+	lexer.ReadCode(vlang :: any, code, Name)
 end
 
 return XuauEngine

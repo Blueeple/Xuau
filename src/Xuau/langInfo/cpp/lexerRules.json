@@ -1,6 +1,6 @@
 {
   "lexerMode": "quickMultMode1",
-  "lineRate": 296,
+  "lineRate": 323,
   "useMultithreading": true,
-  "useGlobalLexer": false
+  "useXuauLexer": true
 }

@@ -1,5 +1,6 @@
-local Xuau = require("./src/Xuau/Engine")
-local Test = require("./src/RobloxTest/Bin/TestCode")
+local Xuau = require("./src/Xuau")
+local Path = "./src/RobloxTest/test.cpp"
 
 Xuau.Init()
-Xuau.CompileToLuau("cpp", Test, "TestCode")
+local ExampleCode = Xuau.ReadExternalFile(Path)
+Xuau.CompileToLuau("cpp", ExampleCode, "TestCode")
